@@ -12,20 +12,29 @@ public class Tank {
     private Vector2 position;
     private Vector2 tmp;
     private TextureRegion[] textures;
+    private TextureRegion projectileTexture;
     private float angle;
     private float speed;
 
     private float moveTimer;
     private float timePerFrame;
 
+    private Projectile projectile;
+
     public Vector2 getPosition() {
         return position;
     }
 
+    public Projectile getProjectile() {
+        return projectile;
+    }
+
     public Tank(TextureAtlas atlas, float x, float y) {
+        super();
         this.position = new Vector2(x, y);
         this.tmp = new Vector2(0, 0);
         this.textures = new TextureRegion(atlas.findRegion("tankanim")).split(64, 64)[0];
+        this.projectile = new Projectile(atlas, false);
         this.speed = 140.0f;
         this.timePerFrame = 0.08f;
     }
@@ -44,17 +53,28 @@ public class Tank {
         if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
             position.add(speed * MathUtils.cosDeg(angle) * dt, speed * MathUtils.sinDeg(angle) * dt);
             moveTimer += dt;
-        } else {
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            if(!projectile.isFire()) {
+                makeFire();
+            }
+        }
+        else {
             if (getCurrentFrameIndex() != 0) {
                 moveTimer += dt;
             }
         }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.K)) {
-
-        }
         checkBounds();
     }
+
+    public void makeFire() {
+        //tmp.set(1,0).rotate(angle).scl(27).add(position.x, position.y - 10);
+        projectile.setPosition(tmp);
+        projectile.fire(angle);
+        projectile.setFire(true);
+        System.out.println("fire");
+    }
+
 
     public void checkBounds() {
         if (position.x < 40) {
